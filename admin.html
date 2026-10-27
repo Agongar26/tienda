@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Panel Admin</h1>
+        <button id="btn-logout" style="display:none;">Cerrar Sesión</button>
+        <a href="index.html" class="admin-link">Ver Tienda</a>
+    </header>
+
+    <div id="login-section">
+        <h2>Iniciar Sesión</h2>
+        <input type="email" id="email" placeholder="Correo">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button id="btn-login">Entrar</button>
+    </div>
+
+    <div id="crud-section" style="display:none;">
+        <h2>Gestión de Productos</h2>
+        <form id="form-producto">
+            <input type="hidden" id="prod-id">
+            <input type="text" id="prod-nombre" placeholder="Nombre (ej. Camiseta)" required>
+            <input type="number" id="prod-precio" placeholder="Precio" required>
+            <input type="text" id="prod-talla" placeholder="Talla (S, M, L...)" required>
+            <input type="text" id="prod-color" placeholder="Color" required>
+            <input type="text" id="prod-tipo" placeholder="Tipo (Camisa, Pantalón...)" required>
+            <input type="url" id="prod-imagen" placeholder="URL de la imagen (Unsplash/Pexels)" required>
+            <textarea id="prod-desc" placeholder="Descripción breve" required></textarea>
+            <button type="submit" id="btn-guardar">Guardar Producto</button>
+        </form>
+
+        <h3>Inventario Actual</h3>
+        <table id="tabla-productos">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Talla/Color</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="lista-productos"></tbody>
+        </table>
+    </div>
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
