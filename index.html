@@ -3,17 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda de Ropa</title>
+    <title>MODA STUDIO | Tienda Oficial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Nuestra Colección</h1>
-        <a href="admin.html" class="admin-link">Acceso Admin</a>
+    <div class="top-bar">
+        ENVÍOS RÁPIDOS | PEDIDOS DIRECTOS POR WHATSAPP
+    </div>
+
+    <header class="main-header">
+        <!-- Botón Hamburguesa (Visible en Móvil) -->
+        <div class="header-left">
+            <button id="btn-abrir-menu-movil" class="mobile-menu-btn" aria-label="Abrir menú de categorías">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <span class="menu-btn-text">MENÚ</span>
+            </button>
+
+            <!-- Navegación con Mega-Menús (Visible solo en Escritorio) -->
+            <nav class="nav-mega-wrapper desktop-only">
+                <a href="#catalogo-anchor" class="nav-link" data-cat="TODOS">VER TODO</a>
+
+                <div class="nav-item-dropdown">
+                    <a href="#catalogo-anchor" class="nav-link" data-cat="ROPA">ROPA</a>
+                    <div class="mega-menu mega-ropa">
+                        <div class="mega-col">
+                            <h5 class="mega-title" data-cat="ROPA">ROPA</h5>
+                            <ul class="mega-list" id="menu-ropa-principal"></ul>
+
+                            <h5 class="mega-title" style="margin-top: 1.5rem;">CONFORT</h5>
+                            <ul class="mega-list" id="menu-ropa-confort"></ul>
+                        </div>
+                        <div class="mega-col">
+                            <h5 class="mega-title">FALDAS</h5>
+                            <ul class="mega-list" id="menu-ropa-faldas"></ul>
+
+                            <h5 class="mega-title mega-rebajas" data-cat="REBAJAS" style="margin-top: 1.8rem;">REBAJAS</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-item-dropdown">
+                    <a href="#catalogo-anchor" class="nav-link" data-cat="CALZADO">CALZADO</a>
+                    <div class="mega-menu mega-single">
+                        <div class="mega-col">
+                            <h5 class="mega-title" data-cat="CALZADO">CALZADO</h5>
+                            <ul class="mega-list" id="menu-calzado"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-item-dropdown">
+                    <a href="#catalogo-anchor" class="nav-link" data-cat="COMPLEMENTOS">COMPLEMENTOS</a>
+                    <div class="mega-menu mega-single">
+                        <div class="mega-col">
+                            <h5 class="mega-title" data-cat="COMPLEMENTOS">COMPLEMENTOS</h5>
+                            <ul class="mega-list" id="menu-complementos"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#catalogo-anchor" class="nav-link nav-rebajas-link" data-cat="REBAJAS">REBAJAS</a>
+            </nav>
+        </div>
+        
+        <a href="index.html" class="brand-logo">MODA STUDIO</a>
+        
+        <div class="header-right">
+            <button id="btn-abrir-carrito" class="cart-trigger">
+                <span class="cart-label-text">CESTA</span> (<span id="cart-count">0</span>)
+            </button>
+        </div>
     </header>
-    <main id="catalogo" class="grid-container">
-        <!-- Los productos se inyectarán aquí por JS -->
-    </main>
+
+    <!-- MENÚ DESPLEGABLE LATERAL PARA MÓVIL (OFF-CANVAS) -->
+    <div id="mobile-nav-overlay" class="mobile-nav-overlay">
+        <aside class="mobile-nav-drawer">
+            <div class="mobile-nav-header">
+                <span class="mobile-nav-brand">CATEGORÍAS</span>
+                <button id="btn-cerrar-menu-movil" class="mobile-nav-close">&times;</button>
+            </div>
+            <div id="mobile-nav-content" class="mobile-nav-body">
+                <!-- Se genera dinámicamente con acordeones -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Banner Principal -->
+    <section id="hero-banner" class="hero">
+        <div class="hero-overlay">
+            <span class="hero-subtitle">NUEVA COLECCIÓN</span>
+            <h2>ELEGANCIA EN CADA DETALLE</h2>
+            <a href="#catalogo-anchor" class="btn-hero">EXPLORAR CATÁLOGO</a>
+        </div>
+    </section>
+
+    <!-- Sección Catálogo -->
+    <section id="catalogo-anchor" class="catalog-section">
+        <div class="breadcrumbs" id="breadcrumbs">
+            <span class="crumb-home" data-cat="TODOS">Inicio</span>
+            <span class="crumb-sep">/</span>
+            <span id="crumb-actual">COLECCIÓN COMPLETA</span>
+        </div>
+
+        <div class="catalog-layout">
+            <!-- Columna Lateral Izquierda (Solo en Escritorio; en móvil se usa el menú hamburguesa) -->
+            <aside class="catalog-sidebar desktop-only">
+                <div id="sidebar-categorias"></div>
+            </aside>
+
+            <!-- Columna Principal de Productos -->
+            <div class="catalog-main">
+                <div class="catalog-toolbar">
+                    <div class="toolbar-title-group">
+                        <h3 id="titulo-categoria-activa">COLECCIÓN COMPLETA</h3>
+                        <span id="contador-productos" class="product-count">0 artículos</span>
+                    </div>
+                    <div class="toolbar-actions">
+                        <button type="button" id="btn-Categorias-movil-bar" class="btn-mobile-filter mobile-only">
+                            FILTRAR CATEGORÍA
+                        </button>
+                        <div class="toolbar-sort">
+                            <label for="select-orden" class="desktop-only">Ordenar por:</label>
+                            <select id="select-orden">
+                                <option value="recientes">Ordenar: Relevancia</option>
+                                <option value="precio-asc">Precio: menor a mayor</option>
+                                <option value="precio-desc">Precio: mayor a menor</option>
+                                <option value="nombre-asc">Nombre: A - Z</option>
+                                <option value="nombre-desc">Nombre: Z - A</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <main id="catalogo" class="grid-container"></main>
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL DE VISTA DETALLADA DE PRODUCTO -->
+    <div id="modal-producto" class="modal-overlay">
+        <div class="modal-content">
+            <button id="cerrar-modal" class="modal-close">&times;</button>
+            <div class="modal-grid">
+                <div class="modal-gallery">
+                    <div class="main-img-container">
+                        <img id="modal-img-principal" src="" alt="Prenda">
+                    </div>
+                    <div id="modal-thumbnails" class="thumbnails-row"></div>
+                </div>
+                <div class="modal-info">
+                    <span id="modal-tipo" class="modal-badge"></span>
+                    <h2 id="modal-nombre" class="modal-title"></h2>
+                    <p id="modal-precio" class="modal-price"></p>
+                    <p id="modal-desc" class="modal-desc"></p>
+
+                    <div class="selector-group">
+                        <label>COLOR: <strong id="label-color-sel"></strong></label>
+                        <div id="modal-colores" class="options-row"></div>
+                    </div>
+
+                    <div class="selector-group">
+                        <label>TALLA: <strong id="label-talla-sel"></strong></label>
+                        <div id="modal-tallas" class="options-row"></div>
+                    </div>
+
+                    <div class="selector-group">
+                        <label>TALLA: <strong id="label-talla-sel"></strong></label>
+                        <div id="modal-tallas" class="options-row"></div>
+                        <p id="modal-stock-status" class="stock-status-msg"></p>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button id="btn-add-cart" class="btn-primary">AÑADIR A LA CESTA</button>
+                        <button id="btn-buy-now" class="btn-wa">COMPRAR AHORA POR WHATSAPP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARRITO LATERAL -->
+    <div id="cart-overlay" class="cart-overlay">
+        <aside class="cart-drawer">
+            <div class="cart-header">
+                <h3>TU CESTA</h3>
+                <button id="cerrar-carrito" class="cart-close">&times;</button>
+            </div>
+            <div id="cart-items" class="cart-items"></div>
+            <div class="cart-footer">
+                <div class="cart-total-row">
+                    <span>TOTAL ESTIMADO</span>
+                    <strong id="cart-total">0.00 €</strong>
+                </div>
+                <button id="btn-checkout-wa" class="btn-wa">FINALIZAR PEDIDO POR WHATSAPP</button>
+                <button id="btn-vaciar-carrito" class="btn-clear">Vaciar cesta</button>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>MODA STUDIO</h4>
+                <p>Moda actual pensada para destacar tu estilo en cualquier ocasión con atención cercana y directa.</p>
+            </div>
+            <div class="footer-col">
+                <h4>COMPRA FÁCIL</h4>
+                <p>1. Navega por nuestras categorías.<br>2. Elige color y talla de tus artículos.<br>3. Envía tu pedido por WhatsApp en un clic.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 MODA STUDIO. Todos los derechos reservados.
+        </div>
+    </footer>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
