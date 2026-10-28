@@ -18,7 +18,9 @@ const contenedorPrecioRebaja = document.getElementById('contenedor-precio-rebaja
 const inputPrecioRebaja = document.getElementById('prod-precio-rebaja');
 const inputTallas = document.getElementById('prod-tallas');
 const inputUmbral = document.getElementById('umbral-pocas-unidades');
-const btnGuardarUmbral = document.getElementById('btn-guardar-umbral');
+const inputCostoEnvio = document.getElementById('costo-envio');
+const inputEnvioGratisMin = document.getElementById('envio-gratis-min');
+const btnGuardarConfig = document.getElementById('btn-guardar-config');
 
 let inventarioCache = {};
 
@@ -30,8 +32,29 @@ checkRebajas.addEventListener('change', () => {
 });
 
 function obtenerListaTallasFormulario() {
-    const arr = inputTallas.value.split(',').map(s => s.trim()).filter(Boolean);
-    return arr.length > 0 ? arr : ['Única'];
+    const partes = inputTallas.value.split(',').map(s => s.trim()).filter(Boolean);
+    const tallasExpandidas = [];
+
+    partes.forEach(parte => {
+        // Detectar formato de rango numérico (ej. "30-40" o "36 - 41")
+        const matchRango = parte.match(/^(\d+)\s*-\s*(\d+)$/);
+        if (matchRango) {
+            const inicio = parseInt(matchRango[1], 10);
+            const fin = parseInt(matchRango[2], 10);
+            // Evitar rangos accidentales gigantes (máximo 50 tallas de diferencia)
+            if (inicio <= fin && (fin - inicio) <= 50) {
+                for (let t = inicio; t <= fin; t++) {
+                    tallasExpandidas.push(String(t));
+                }
+                return;
+            }
+        }
+        tallasExpandidas.push(parte);
+    });
+
+    // Eliminar posibles duplicados manteniendo el orden
+    const unicas = [...new Set(tallasExpandidas)];
+    return unicas.length > 0 ? unicas : ['Única'];
 }
 
 // Actualizar las casillas de stock por talla en cada bloque de color cuando cambian las tallas
@@ -128,28 +151,36 @@ function agregarBloqueColor(nombreColor = '', listaImagenes = [], stockPorTalla 
 
 btnAgregarColor.addEventListener('click', () => agregarBloqueColor());
 
-// Cargar y guardar el umbral global de pocas unidades
+// Cargar y guardar configuración global de la tienda
 async function cargarConfiguracionTienda() {
     try {
         const snap = await getDoc(doc(db, "productos", "config_tienda_global"));
-        if (snap.exists() && snap.data().umbralPocasUnidades !== undefined) {
-            inputUmbral.value = snap.data().umbralPocasUnidades;
+        if (snap.exists()) {
+            const data = snap.data();
+            if (data.umbralPocasUnidades !== undefined) inputUmbral.value = data.umbralPocasUnidades;
+            if (data.costoEnvio !== undefined) inputCostoEnvio.value = data.costoEnvio;
+            if (data.envioGratisMin !== undefined) inputEnvioGratisMin.value = data.envioGratisMin;
         }
     } catch (e) {
         console.error(e);
     }
 }
 
-btnGuardarUmbral.addEventListener('click', async () => {
-    const val = Math.max(1, parseInt(inputUmbral.value, 10) || 3);
+btnGuardarConfig.addEventListener('click', async () => {
+    const valUmbral = Math.max(1, parseInt(inputUmbral.value, 10) || 3);
+    const valEnvio = Math.max(0, parseFloat(inputCostoEnvio.value) || 0);
+    const valGratisMin = Math.max(0, parseFloat(inputEnvioGratisMin.value) || 0);
+    
     try {
         await setDoc(doc(db, "productos", "config_tienda_global"), {
             esConfiguracion: true,
-            umbralPocasUnidades: val
+            umbralPocasUnidades: valUmbral,
+            costoEnvio: valEnvio,
+            envioGratisMin: valGratisMin
         }, { merge: true });
-        alert(`Alerta configurada: se avisará cuando queden ${val} unidades o menos.`);
+        alert("Configuración global (Stock y Envíos) guardada correctamente.");
     } catch (error) {
-        alert("Error al guardar el umbral: " + error.message);
+        alert("Error al guardar configuración: " + error.message);
     }
 });
 

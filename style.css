@@ -1240,3 +1240,33 @@ button:disabled {
     opacity: 0.45;
     cursor: not-allowed !important;
 }
+
+/* --- RESUMEN DE CARRITO (ESTILO REFERENCIA) --- */
+.cart-summary {
+    background-color: #f6f6f6;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    font-size: 0.72rem;
+    color: #1a1a1a;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-divider {
+    height: 1px;
+    background-color: #e5e5e5;
+    margin: 0.2rem 0;
+}
+
+.total-row {
+    font-size: 0.82rem;
+    font-weight: 500;
+}

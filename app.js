@@ -37,6 +37,8 @@ const cartTotal = document.getElementById('cart-total');
 
 let todosLosProductos = [];
 let umbralPocasUnidades = 3; // Valor por defecto si no se ha configurado en Admin
+let costoEnvioConfig = 4.95; // Costo del envío
+let envioGratisMinConfig = 50.00; // Mínimo para el envío gratis
 let filtroActual = { categoria: 'TODOS', subcategoria: null };
 let productoActual = null;
 let varianteColorActual = null;
@@ -309,9 +311,9 @@ async function cargarProductos() {
         querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
             if (docSnap.id === "config_tienda_global" || data.esConfiguracion) {
-                if (data.umbralPocasUnidades !== undefined) {
-                    umbralPocasUnidades = Number(data.umbralPocasUnidades) || 3;
-                }
+                if (data.umbralPocasUnidades !== undefined) umbralPocasUnidades = Number(data.umbralPocasUnidades) || 3;
+                if (data.costoEnvio !== undefined) costoEnvioConfig = Number(data.costoEnvio);
+                if (data.envioGratisMin !== undefined) envioGratisMinConfig = Number(data.envioGratisMin);
                 return;
             }
             todosLosProductos.push(normalizarProducto(docSnap.id, data));
@@ -343,7 +345,7 @@ function filtrarYOrdenarProductos() {
     if (criterio === 'precio-asc') lista.sort((a, b) => obtenerPrecioEfectivo(a) - obtenerPrecioEfectivo(b));
     if (criterio === 'precio-desc') lista.sort((a, b) => obtenerPrecioEfectivo(b) - obtenerPrecioEfectivo(a));
     if (criterio === 'nombre-asc') lista.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    if (criterio === 'nombre-desc') lista.sort((b, a) => b.nombre.localeCompare(a.nombre));
+    if (criterio === 'nombre-desc') lista.sort((a, b) => b.nombre.localeCompare(a.nombre));
 
     contadorProductos.textContent = `${lista.length} artículo${lista.length === 1 ? '' : 's'}`;
     renderizarCatalogo(lista);
@@ -650,16 +652,20 @@ function guardarYActualizarCarrito() {
 function actualizarVistaCarrito() {
     cartCount.textContent = carrito.reduce((acc, item) => acc + item.cantidad, 0);
     cartItemsContainer.innerHTML = "";
+    
     if (carrito.length === 0) {
         cartItemsContainer.innerHTML = "<p class='empty-cart'>Tu cesta está vacía.</p>";
-        cartTotal.textContent = "0.00 €";
+        document.getElementById('cart-subtotal').textContent = "0,00 €";
+        document.getElementById('cart-shipping').textContent = "0,00 €";
+        document.getElementById('cart-taxes').textContent = "0,00 €";
+        cartTotal.textContent = "0,00 €";
         return;
     }
 
-    let sumaTotal = 0;
+    let subtotal = 0;
     carrito.forEach((item, index) => {
-        const subtotal = item.precio * item.cantidad;
-        sumaTotal += subtotal;
+        const sub = item.precio * item.cantidad;
+        subtotal += sub;
         const div = document.createElement('div');
         div.className = 'cart-item';
         div.innerHTML = `
@@ -667,7 +673,7 @@ function actualizarVistaCarrito() {
             <div class="cart-item-info">
                 <h4>${item.nombre}</h4>
                 <p>Color: <strong>${item.color}</strong> | Talla: <strong>${item.talla}</strong></p>
-                <p class="cart-item-price">${item.precio.toFixed(2)} € x ${item.cantidad} = <strong>${subtotal.toFixed(2)} €</strong></p>
+                <p class="cart-item-price">${formatearEuros(item.precio)} x ${item.cantidad} = <strong>${formatearEuros(sub)}</strong></p>
                 <div class="cart-qty-controls">
                     <button class="qty-btn" data-idx="${index}" data-op="-1">-</button>
                     <span>${item.cantidad}</span>
@@ -679,7 +685,15 @@ function actualizarVistaCarrito() {
         cartItemsContainer.appendChild(div);
     });
 
-    cartTotal.textContent = `${sumaTotal.toFixed(2)} €`;
+    // Cálculos del resumen
+    const transporte = subtotal >= envioGratisMinConfig ? 0 : costoEnvioConfig;
+    const total = subtotal + transporte;
+    const impuestos = subtotal - (subtotal / 1.21); // Calculando base imponible del 21% IVA español
+
+    document.getElementById('cart-subtotal').textContent = formatearEuros(subtotal);
+    document.getElementById('cart-shipping').textContent = transporte === 0 ? "GRATIS" : formatearEuros(transporte);
+    document.getElementById('cart-taxes').textContent = formatearEuros(impuestos);
+    cartTotal.textContent = formatearEuros(total);
 
     cartItemsContainer.querySelectorAll('.qty-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -703,6 +717,28 @@ function actualizarVistaCarrito() {
         });
     });
 }
+
+document.getElementById('btn-checkout-wa').addEventListener('click', () => {
+    if (carrito.length === 0) return alert("Tu cesta está vacía.");
+    
+    let subtotal = 0;
+    let lineas = `¡Hola! Me gustaría realizar el siguiente pedido:\n\n`;
+    
+    carrito.forEach((item, i) => {
+        const sub = item.precio * item.cantidad;
+        subtotal += sub;
+        lineas += `${i + 1}. *${item.nombre}*\n   • Color: ${item.color} | Talla: ${item.talla}\n   • Cantidad: ${item.cantidad} x ${formatearEuros(item.precio)} = ${formatearEuros(sub)}\n\n`;
+    });
+
+    const transporte = subtotal >= envioGratisMinConfig ? 0 : costoEnvioConfig;
+    const total = subtotal + transporte;
+
+    lineas += `*SUBTOTAL:* ${formatearEuros(subtotal)}\n`;
+    lineas += `*TRANSPORTE:* ${transporte === 0 ? 'GRATIS' : formatearEuros(transporte)}\n`;
+    lineas += `*TOTAL DEL PEDIDO: ${formatearEuros(total)}*\n\n¿Me confirmáis disponibilidad para proceder?`;
+    
+    window.open(`https://wa.me/${numWhatsApp}?text=${encodeURIComponent(lineas)}`, '_blank');
+});
 
 document.getElementById('btn-abrir-carrito').addEventListener('click', () => cartOverlay.classList.add('open'));
 document.getElementById('cerrar-carrito').addEventListener('click', () => cartOverlay.classList.remove('open'));

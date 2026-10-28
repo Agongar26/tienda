@@ -198,9 +198,24 @@
             </div>
             <div id="cart-items" class="cart-items"></div>
             <div class="cart-footer">
-                <div class="cart-total-row">
-                    <span>TOTAL ESTIMADO</span>
-                    <strong id="cart-total">0.00 €</strong>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>SUBTOTAL</span>
+                        <span id="cart-subtotal">0,00 €</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>TRANSPORTE</span>
+                        <span id="cart-shipping">0,00 €</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>IMPUESTOS INCLUIDOS</span>
+                        <span id="cart-taxes">0,00 €</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total-row">
+                        <span>TOTAL</span>
+                        <span id="cart-total">0,00 €</span>
+                    </div>
                 </div>
                 <button id="btn-checkout-wa" class="btn-wa">FINALIZAR PEDIDO POR WHATSAPP</button>
                 <button id="btn-vaciar-carrito" class="btn-clear">Vaciar cesta</button>

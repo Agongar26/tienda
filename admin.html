@@ -24,15 +24,22 @@
     </div>
 
     <div id="crud-section" style="display:none;">
-        <!-- CONFIGURACIÓN GLOBAL DE ALERTA DE STOCK -->
+        <!-- CONFIGURACIÓN GLOBAL DE TIENDA Y ENVÍOS -->
         <div class="stock-alert-config">
             <div>
-                <label class="admin-label" style="margin-bottom:0.2rem;">Alerta de "Pocas Unidades" en la tienda</label>
-                <p class="admin-help" style="margin:0;">Mostrar aviso de últimas unidades cuando el stock de una talla sea igual o menor a este valor:</p>
+                <label class="admin-label">Alerta "Pocas Unidades"</label>
+                <input type="number" id="umbral-pocas-unidades" min="1" value="3" style="width:100%; margin:0;">
             </div>
-            <div style="display:flex; gap:0.5rem; align-items:center;">
-                <input type="number" id="umbral-pocas-unidades" min="1" value="3" style="width:85px; margin:0;">
-                <button type="button" id="btn-guardar-umbral" class="btn-small" style="margin:0; padding:0.8rem 1rem;">Guardar Valor</button>
+            <div>
+                <label class="admin-label">Gastos de Envío (€)</label>
+                <input type="number" id="costo-envio" step="0.01" min="0" value="4.95" style="width:100%; margin:0;">
+            </div>
+            <div>
+                <label class="admin-label">Envío Gratis a partir de (€)</label>
+                <input type="number" id="envio-gratis-min" step="0.01" min="0" value="50.00" style="width:100%; margin:0;">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button type="button" id="btn-guardar-config" class="btn-small" style="margin:0; padding:0.8rem 1rem;">Guardar Ajustes</button>
             </div>
         </div>
 
@@ -69,8 +76,8 @@
 
             <div class="admin-form-row" style="align-items: center; margin-bottom: 0.5rem;">
                 <div>
-                    <label class="admin-label">Tallas / Números (separados por coma)</label>
-                    <input type="text" id="prod-tallas" placeholder="Ej. S, M, L (o 36, 37, 38 / Única)" value="S, M, L" required>
+                    <label class="admin-label">Tallas / Números (por coma o rango ej. 30-40)</label>
+                    <input type="text" id="prod-tallas" placeholder="Ej. S, M, L o rango 30-40" value="S, M, L" required>
                 </div>
                 <div class="checkbox-rebajas-wrapper">
                     <label class="checkbox-label">
